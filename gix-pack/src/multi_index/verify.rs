@@ -283,19 +283,9 @@ impl File {
                             Tree(err) => Tree(err),
                             TreeTraversal(err) => TreeTraversal(err),
                             PackDecode { id, offset, source } => PackDecode { id, offset, source },
-                            PackMismatch { expected, actual } => PackMismatch { expected, actual },
+                            PackMismatch(err) => PackMismatch(err),
                             EntryType(err) => EntryType(err),
-                            PackObjectMismatch {
-                                expected,
-                                actual,
-                                offset,
-                                kind,
-                            } => PackObjectMismatch {
-                                expected,
-                                actual,
-                                offset,
-                                kind,
-                            },
+                            PackObjectVerify { offset, source } => PackObjectVerify { offset, source },
                             Crc32Mismatch {
                                 expected,
                                 actual,
