@@ -106,16 +106,17 @@ mod sha1 {
         let message_b = include_bytes!("../fixtures/shambles/messageb");
         assert_ne!(message_a, message_b);
 
-        // BUG: These should be detected as a collision attack.
         let expected =
             ObjectId::from_str("8ac60ba76f1999a1ab70223f225aefdc78d4ddc0").expect("Shambles digest to be valid");
-        assert_eq!(
-            hash_contents(message_a).expect("collision attacks to not be detected"),
-            expected,
-        );
-        assert_eq!(
-            hash_contents(message_b).expect("collision attacks to not be detected"),
-            expected,
-        );
+
+        let Err(hasher::Error::CollisionAttack { digest }) = hash_contents(message_a) else {
+            panic!("expected Shambles input to collide");
+        };
+        assert_eq!(digest, expected);
+
+        let Err(hasher::Error::CollisionAttack { digest }) = hash_contents(message_b) else {
+            panic!("expected Shambles input to collide");
+        };
+        assert_eq!(digest, expected);
     }
 }
