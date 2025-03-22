@@ -45,8 +45,7 @@ mod from_hex {
 mod sha1 {
     use std::str::FromStr as _;
 
-    use gix_features::hash::hasher;
-    use gix_hash::{Kind, ObjectId};
+    use gix_hash::{hasher, Kind, ObjectId};
 
     fn hash_contents(s: &[u8]) -> ObjectId {
         let mut hasher = hasher(Kind::Sha1);

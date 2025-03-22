@@ -121,7 +121,6 @@ path = "tests/pipe.rs"
 required-features = ["io-pipe"]
 
 [dependencies]
-gix-hash = { version = "^0.16.0", path = "../gix-hash" }
 gix-trace = { version = "^0.1.12", path = "../gix-trace" }
 
 # for walkdir
