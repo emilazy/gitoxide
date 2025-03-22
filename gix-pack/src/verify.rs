@@ -11,6 +11,8 @@ pub mod checksum {
     pub enum Error {
         #[error("Interrupted by user")]
         Interrupted,
+        #[error("Failed to hash index")]
+        Hasher(#[from] gix_hash::hasher::Error),
         #[error("Index checksum mismatch")]
         Verify(#[from] gix_hash::verify::Error),
     }
@@ -52,8 +54,9 @@ pub fn checksum_on_disk_or_mmap(
             hasher.update(&data[..data_len_without_trailer]);
             progress.inc_by(data_len_without_trailer);
             progress.show_throughput(start);
-            hasher.digest()
+            hasher.try_finalize()?
         }
+        Err(hasher::io::Error::Hasher(err)) => return Err(checksum::Error::Hasher(err)),
     };
 
     actual.verify(&expected)?;

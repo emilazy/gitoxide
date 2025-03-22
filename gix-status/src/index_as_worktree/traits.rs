@@ -143,7 +143,8 @@ impl CompareBlobs for HashEq {
         let mut stream = data.stream_worktree_file()?;
         match stream.as_bytes() {
             Some(buffer) => {
-                let file_hash = gix_object::compute_hash(entry.id.kind(), gix_object::Kind::Blob, buffer);
+                let file_hash = gix_object::compute_hash(entry.id.kind(), gix_object::Kind::Blob, buffer)
+                    .map_err(hasher::io::Error::from)?;
                 Ok((entry.id != file_hash).then_some(file_hash))
             }
             None => {
@@ -151,6 +152,7 @@ impl CompareBlobs for HashEq {
                     None => {
                         stream.read_to_end(buf).map_err(hasher::io::Error::from)?;
                         gix_object::compute_hash(entry.id.kind(), gix_object::Kind::Blob, buf)
+                            .map_err(hasher::io::Error::from)?
                     }
                     Some(len) => gix_object::compute_stream_hash(
                         entry.id.kind(),

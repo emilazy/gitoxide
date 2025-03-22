@@ -6,6 +6,8 @@ use crate::{hasher, Hasher};
 pub enum Error {
     #[error(transparent)]
     Io(#[from] std::io::Error),
+    #[error("Failed to hash data")]
+    Hasher(#[from] hasher::Error),
 }
 
 /// Compute the hash of `kind` for the bytes in the file at `path`, hashing only the first `num_bytes_from_start`
@@ -74,7 +76,7 @@ pub fn bytes_with_hasher(
         }
     }
 
-    let id = hasher.digest();
+    let id = hasher.try_finalize()?;
     progress.show_throughput(start);
     Ok(id)
 }

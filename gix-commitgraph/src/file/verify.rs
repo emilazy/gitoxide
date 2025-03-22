@@ -45,6 +45,8 @@ pub mod checksum {
     #[derive(thiserror::Error, Debug)]
     #[allow(missing_docs)]
     pub enum Error {
+        #[error("failed to hash commit graph file")]
+        Hasher(#[from] gix_hash::hasher::Error),
         #[error(transparent)]
         Verify(#[from] gix_hash::verify::Error),
     }
@@ -153,7 +155,7 @@ impl File {
         let data_len_without_trailer = self.data.len() - self.hash_len;
         let mut hasher = gix_hash::hasher(self.object_hash());
         hasher.update(&self.data[..data_len_without_trailer]);
-        let actual = hasher.digest();
+        let actual = hasher.try_finalize()?;
         actual.verify(self.checksum())?;
         Ok(actual)
     }

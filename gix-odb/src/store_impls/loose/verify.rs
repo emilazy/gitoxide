@@ -19,6 +19,13 @@ pub mod integrity {
             kind: gix_object::Kind,
             id: gix_hash::ObjectId,
         },
+        #[error("{kind} object {expected} could not be hashed")]
+        ObjectHasher {
+            #[source]
+            source: gix_hash::hasher::Error,
+            kind: gix_object::Kind,
+            expected: gix_hash::ObjectId,
+        },
         #[error("{kind} object wasn't re-encoded without change")]
         ObjectEncodeMismatch {
             #[source]
@@ -78,7 +85,11 @@ impl Store {
                 .map_err(|_| integrity::Error::Retry)?
                 .ok_or(integrity::Error::Retry)?;
             sink.write_buf(object.kind, object.data)
-                .expect("sink never fails")
+                .map_err(|err| integrity::Error::ObjectHasher {
+                    source: *err.downcast().expect("sink can only fail in hasher"),
+                    kind: object.kind,
+                    expected: id,
+                })?
                 .verify(&id)
                 .map_err(|err| integrity::Error::ObjectEncodeMismatch {
                     source: err,
