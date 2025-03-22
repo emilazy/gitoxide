@@ -50,7 +50,7 @@ mod sha1 {
     fn hash_contents(s: &[u8]) -> ObjectId {
         let mut hasher = hasher(Kind::Sha1);
         hasher.update(s);
-        ObjectId::Sha1(hasher.digest())
+        hasher.digest()
     }
 
     #[test]

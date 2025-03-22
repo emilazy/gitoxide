@@ -7,9 +7,9 @@ impl Hasher {
     pub fn update(&mut self, bytes: &[u8]) {
         self.0.update(bytes);
     }
-    /// Finalize the hash and produce a digest.
-    pub fn digest(self) -> gix_features::hash::Digest {
-        self.0.digest()
+    /// Finalize the hash and produce an object ID.
+    pub fn digest(self) -> crate::ObjectId {
+        self.0.digest().into()
     }
 }
 
