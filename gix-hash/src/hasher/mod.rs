@@ -1,3 +1,5 @@
+use sha1_checked::{CollisionResult, Digest};
+
 /// The error returned by [`Hasher::digest()`].
 #[derive(Debug, thiserror::Error)]
 #[allow(missing_docs)]
@@ -11,7 +13,7 @@ pub enum Error {
 /// We use [`sha1collisiondetection`] to implement the same
 /// collision detection algorithm as Git.
 #[derive(Clone)]
-pub struct Hasher(sha1collisiondetection::Sha1CD);
+pub struct Hasher(sha1_checked::Sha1);
 
 impl Default for Hasher {
     fn default() -> Self {
@@ -19,7 +21,7 @@ impl Default for Hasher {
         // the collision detection to bail out, rather than computing
         // alternate “safe hashes” for inputs where a collision attack
         // was detected.
-        Self(sha1collisiondetection::Builder::default().safe_hash(false).build())
+        Self(sha1_checked::Builder::default().safe_hash(false).build())
     }
 }
 
@@ -31,13 +33,15 @@ impl Hasher {
     /// Finalize the hash and produce an object ID.
     ///
     /// Returns [`Error`] if a collision attack is detected.
-    pub fn try_finalize(mut self) -> Result<crate::ObjectId, Error> {
-        let mut output = sha1collisiondetection::Output::default();
-        let result = self.0.finalize_into_dirty_cd(&mut output);
-        let digest = crate::ObjectId::Sha1(output.into());
-        match result {
-            Ok(()) => Ok(digest),
-            Err(sha1collisiondetection::Collision {}) => Err(Error::CollisionAttack { digest }),
+    pub fn try_finalize(self) -> Result<crate::ObjectId, Error> {
+        match self.0.try_finalize() {
+            CollisionResult::Ok(digest) => Ok(crate::ObjectId::Sha1(digest.into())),
+            CollisionResult::Mitigated(_) => {
+                unreachable!("`CollisionResult::Mitigated` is only returned when `safe_hash()` is on");
+            }
+            CollisionResult::Collision(digest) => Err(Error::CollisionAttack {
+                digest: crate::ObjectId::Sha1(digest.into()),
+            }),
         }
     }
 }
