@@ -28,6 +28,7 @@ impl Default for Hasher {
 
 impl Hasher {
     /// Digest the given `bytes`.
+    #[inline]
     pub fn update(&mut self, bytes: &[u8]) {
         self.0.update(bytes);
     }
