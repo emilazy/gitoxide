@@ -16,6 +16,7 @@ pub enum Error {
 pub struct Hasher(sha1_checked::Sha1);
 
 impl Default for Hasher {
+    #[inline]
     fn default() -> Self {
         // This matches the configuration used by Git, which only uses
         // the collision detection to bail out, rather than computing
@@ -33,6 +34,7 @@ impl Hasher {
     /// Finalize the hash and produce an object ID.
     ///
     /// Returns [`Error`] if a collision attack is detected.
+    #[inline]
     pub fn try_finalize(self) -> Result<crate::ObjectId, Error> {
         match self.0.try_finalize() {
             CollisionResult::Ok(digest) => Ok(crate::ObjectId::Sha1(digest.into())),
@@ -47,6 +49,7 @@ impl Hasher {
 }
 
 /// Produce a hasher suitable for the given kind of hash.
+#[inline]
 pub fn hasher(kind: crate::Kind) -> Hasher {
     match kind {
         crate::Kind::Sha1 => Hasher::default(),
