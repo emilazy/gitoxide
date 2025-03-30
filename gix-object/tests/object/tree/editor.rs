@@ -793,7 +793,7 @@ mod utils {
 
     pub(super) fn new_inmemory_writes() -> (
         TreeStore,
-        impl FnMut(&Tree) -> Result<ObjectId, std::io::Error>,
+        impl FnMut(&Tree) -> Result<ObjectId, gix_hash::hasher::io::Error>,
         impl Fn() -> usize,
     ) {
         let store = TreeStore::default();
@@ -805,7 +805,7 @@ mod utils {
             move |tree: &Tree| {
                 buf.clear();
                 tree.write_to(&mut buf)?;
-                let id = gix_object::compute_hash(gix_hash::Kind::Sha1, gix_object::Kind::Tree, &buf);
+                let id = gix_object::compute_hash(gix_hash::Kind::Sha1, gix_object::Kind::Tree, &buf)?;
                 store.borrow_mut().insert(id, tree.clone());
                 let old = num_writes.get();
                 num_writes.set(old + 1);
