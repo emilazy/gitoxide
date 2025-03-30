@@ -398,6 +398,7 @@ pub mod decode {
     }
 }
 
+#[inline]
 fn object_hasher(hash_kind: gix_hash::Kind, object_kind: Kind, object_size: u64) -> gix_hash::Hasher {
     let mut hasher = gix_hash::hasher(hash_kind);
     hasher.update(&encode::loose_header(object_kind, object_size));
@@ -406,6 +407,7 @@ fn object_hasher(hash_kind: gix_hash::Kind, object_kind: Kind, object_size: u64)
 
 /// A function to compute a hash of kind `hash_kind` for an object of `object_kind` and its `data`.
 #[doc(alias = "hash_object", alias = "git2")]
+#[inline]
 pub fn compute_hash(
     hash_kind: gix_hash::Kind,
     object_kind: Kind,
@@ -421,6 +423,7 @@ pub fn compute_hash(
 /// Use `progress` to learn about progress in bytes processed and `should_interrupt` to be able to abort the operation
 /// if set to `true`.
 #[doc(alias = "hash_file", alias = "git2")]
+#[inline]
 pub fn compute_stream_hash(
     hash_kind: gix_hash::Kind,
     object_kind: Kind,
