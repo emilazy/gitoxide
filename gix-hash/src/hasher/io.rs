@@ -36,6 +36,7 @@ pub fn bytes_of_file(
 }
 
 /// Similar to [`bytes_of_file`], but operates on a stream of bytes.
+#[inline]
 pub fn bytes(
     read: &mut dyn std::io::Read,
     num_bytes_from_start: u64,
@@ -47,6 +48,7 @@ pub fn bytes(
 }
 
 /// Similar to [`bytes()`], but takes a `hasher` instead of a hash kind.
+#[inline]
 pub fn bytes_with_hasher(
     read: &mut dyn std::io::Read,
     num_bytes_from_start: u64,
